@@ -1,12 +1,12 @@
 import React, { Fragment, useEffect, useState } from 'react'
-import { songsCategories } from '../api/ApiService'
+import { songsCategories, authorize } from '../api/ApiService'
 import { makeStyles } from '@material-ui/core/styles'
-import { Container, CssBaseline, Divider, Typography, GridList } from '@material-ui/core'
+import { Container, CssBaseline, Divider, Typography, GridList, Button } from '@material-ui/core'
 
 const useStyles = makeStyles(theme => ({
     root: {
         display: 'flex',
-        flexDirection:'column'
+        flexDirection: 'column'
     }
 }))
 
@@ -20,10 +20,19 @@ export default function Browse() {
         })
     }, [])
 
+    const login = () => {
+        authorize().then(response => {
+            console.log(response)
+        }).catch(error => {
+            console.log(error)
+        })
+    }
+
     return (
         <Fragment >
             <CssBaseline />
             <Container maxWidth='lg' className={classes.root} >
+                <Button onClick={login}>Authorize</Button>
                 <Typography variant='subtitle1'>Genres and Moods</Typography>
                 <Divider />
                 <GridList cols={4} cellHeight={275}>
