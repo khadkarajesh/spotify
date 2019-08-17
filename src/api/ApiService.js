@@ -1,15 +1,16 @@
 import axios from 'axios'
+import qs from 'query-string'
 
 const CLIENT_ID = process.env.REACT_APP_CLIENT_ID
-const REDIRECT_URI = 'http://localhost:3000/'
+const REDIRECT_URI = 'http://localhost:3000/callback/'
 const baseUrl = process.env.REACT_APP_API_ENDPOINT
 const api = axios.create({
     baseURL: baseUrl
 })
-let token = localStorage.getItem('accessToken')
-// instance.defaults.headers.common['Authorization'] = localStorage.getItem('accessToken') ? `Bearer ${token}` : ''
-//api.defaults.headers.common['Authorization'] = 'Bearer BQCpqXL6uY9HYm2ifZEGrxf6uzZtjuv_r4jw08qP5QdtW3Aar9m3HmQpIdtZlvzXA77IWUPe-taJ2XLu8WWC68HP7DWsp8FhqjMPaMHyL-OSqajcum5Wshv8D5Cd6hmuWkGrkqIyEmoXTqfJjnf8pUXe0fhsY-kQDGhnoER1outeBNS25qg5XEdjvsp-S6eHEfGAiy_JNHYrDivOCbkj-MQBPXu1Oee4s5tCT8oaznPyeNrCtLf3TYAfVnDIzKlTp2MPI2rMcW0lhjY'
 
+const getAccessToken = localStorage.getItem('access_token')
+
+api.defaults.headers.common['Authorization'] = localStorage.getItem('access_token') ? `Bearer ${getAccessToken}` : ''
 
 const songsCategories = async () => {
     let response = await api.get('/browse/categories')
@@ -17,12 +18,27 @@ const songsCategories = async () => {
 }
 
 const getToken = async (code) => {
-    const CLIENT_ID = process.env.REACT_APP_CLIENT_ID
-    let encodedString = btoa(`${process.env.REACT_APP_SECRET}:${CLIENT_ID}`)
-    api.defaults.headers.common['Authorization'] = `Basic ${encodedString}`
-    let response = await api.post('https://accounts.spotify.com/api/token', { grant_type: 'authorization_code', code: code, redirectUri: REDIRECT_URI })
-    return response
+    let response = await api.post('https://accounts.spotify.com/api/token',
+        qs.stringify({
+            grant_type: 'authorization_code',
+            code: code,
+            redirect_uri: REDIRECT_URI
+        }), {
+            headers: {
+                'Authorization': `Basic ` + btoa(`${process.env.REACT_APP_CLIENT_ID}:${process.env.REACT_APP_SECRET}`)
+            }
+        })
+    saveTokens(response.data)
 }
+
+const saveTokens = (response) => {
+    localStorage.setItem('access_token', response.access_token)
+    localStorage.setItem('token_type', response.token_type)
+    localStorage.setItem('expires_in', response.expires_in)
+    localStorage.setItem('refresh_token', response.refresh_token)
+}
+
+
 
 const authorize = async () => {
     let scopes = encodeURIComponent('user-read-private user-read-email')

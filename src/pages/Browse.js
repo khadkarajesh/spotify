@@ -13,6 +13,8 @@ const useStyles = makeStyles(theme => ({
 export default function Browse() {
     const classes = useStyles()
     const [categories, setCategories] = useState([])
+    let scopes = encodeURIComponent('user-read-private user-read-email')
+    let redirectUri = encodeURIComponent('http://localhost:3000/callback/')
 
     useEffect(() => {
         songsCategories().then(response => {
@@ -32,7 +34,7 @@ export default function Browse() {
         <Fragment >
             <CssBaseline />
             <Container maxWidth='lg' className={classes.root} >
-                <Button onClick={login}>Authorize</Button>
+                <a href={`https://accounts.spotify.com/authorize?response_type=code&client_id=${process.env.REACT_APP_CLIENT_ID}&scope=${scopes}&redirect_uri=${redirectUri}`}>Authorize</a>
                 <Typography variant='subtitle1'>Genres and Moods</Typography>
                 <Divider />
                 <GridList cols={4} cellHeight={275}>
