@@ -1,13 +1,10 @@
 import React from 'react'
 import queryString from 'query-string'
-import { getToken } from '../api/ApiService'
+import {getToken} from '../api/AuthService'
 
 export default function RedirectHandler(params) {
-    let code = queryString.parse(params.location.search).code
-    console.log(code)
-    getToken(code).then(reponse => {
-        params.history.push('/')
-    })
+    getToken(queryString.parse(params.location.search).code)
+    params.history.push('/browse')
     return (
         <div>
             callback
